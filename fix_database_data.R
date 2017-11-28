@@ -6,6 +6,14 @@
 data <- read.csv("Watson/Tostan/Forms.csv", na.strings = '---', check.names=FALSE)
 old_names <- names(data)
 
+# Need to fix the (), | before processing
+names(data) <-  gsub("\\(", "", names(data))
+names(data) <-  gsub("\\)", "", names(data))
+names(data) <-  gsub("\\:", "_", names(data))
+names(data) <-  gsub(" ", "", names(data))
+names(data) <-  gsub("\\|", "_", names(data))
+names(data) <- make.names(names(data))
+
 # Rename variable names. We need to only take what comes after the last period.
 # I should print out a list of the old/new variable names and compare?
 # \\. means literal ., * means everything, . means and
@@ -16,11 +24,9 @@ library(xlsx)
 write.xlsx(x = data, file = "Watson/Tostan/r-data-test-excel.xlsx", sheetName = "TestSheet", row.names = FALSE)
 print("wrote to excel")
 
-# write out text datafile and
-# an SPSS program to read it
-library(foreign)
-write.foreign(data, "Watson/Tostan/r-data-test.txt", "Watson/Tostan/r-data-test.sps",   package="SPSS")
-print("wrote to SPSS")
+# Make a .sav file for SPSS
+library(haven)
+write_sav(data, "Watson/Tostan/r-data-test-spss.sav")
 
 # What if I want to check and see if the variable names are the same/correct in the new version?
 print("check variable names")
