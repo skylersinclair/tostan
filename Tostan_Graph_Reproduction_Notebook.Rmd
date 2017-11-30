@@ -1,0 +1,78 @@
+---
+title: "Tostan MERL Graph Reproduction"
+output:
+  pdf_document: default
+  html_notebook: default
+---
+
+This is an R Notebook to help reproduce graphs frequently made by MERL, using example data from Guinea.
+
+R notebooks are a combination of code (in the grey boxes, called chunks) and surrounding text explanations. You can run the code for each chunk individually, making the graphs easily reproducible and reusable with new data.
+
+First, let's read in the data we want.
+```{r}
+getwd()
+```
+
+```{r}
+d <- read.csv("Forms.csv", na.strings = '---', check.names=FALSE)
+EF_data <- read.csv("17-02-21-GB_EF_CG3_Questionnaire individuel-v2.csv", na.strings = '---', check.names=FALSE)
+```
+
+Unfortunately, the variable names from the server are not very compatible with R. This code fixes the variable names.
+```{r}
+source("clean_names.R")
+names(d) <- clean_names(d)
+names(EF_data) <- clean_names(EF_data)
+```
+
+We can visually check and see that the variable names look right by looking at the first few varibles visually.
+```{r}
+head(names(d),10)
+```
+
+Hopefully, those variable names now look good. Next, we can make some graphs!
+
+% enquêtés qui ont déclaré tous leurs enfants à l'Etat-Civil
+
+```{r}
+registered_girls <- sum(d$GOUV4_nbre_fille_enregistre, na.rm=TRUE)
+registered_boys <- sum(d$GOUV5_nbre_garcon_enregistre, na.rm=TRUE)
+total_kids <- sum(d$nombre_denfants, na.rm=TRUE)
+EB_perc <- (registered_boys + registered_girls) / total_kids
+EB_perc
+table(d$interviewer[d$nombre_denfants>0])
+```
+```{r}
+k1 <- sum(EF_data$child_under_one_declared[EF_data$interviewer=="participant"], na.rm=TRUE)
+k2 <- sum(EF_data$child_between_1_and_5_declared[EF_data$interviewer=="participant"], na.rm=TRUE)
+total_kids <- sum(EF_data$nombre_denfants[EF_data$interviewer=="participant"], na.rm=TRUE)
+EF_perc <- (k1+k2) / total_kids
+table(EF_data$interviewer[EF_data$nombre_denfants>0])
+```
+```{r}
+country <- c('GB','GB','GB','SEN','SEN','SEN')
+interviewer <- c('simple','adoptee','participant','simple','adoptee','participant')
+period <- c('EB','EF','EF','EB','EF','EF')
+percentage_declared <- c(.5,.5,.4,.3,.6,.2)
+x <- data.frame(country, interviewer, period, percentage_declared)
+x
+```
+
+```{r}
+barplot(as.matrix(x), main="Title", xlab="Phase", ylab="Percentage", names.arg=c("EB","EF","EF"),
+beside = TRUE)
+legend("topright", c("First","Second","third"), cex=1.3, bty="n")
+```
+```{r}
+library(lattice) 
+barchart(percentage_declared~period|country,
+         groups=interviewer,data=x,layout=c(2,1),
+         ylim=c(0,1.0),
+         ylab = "Percentage Declared",
+         main = "Title Here",
+        auto.key=list(space="bottom", columns=3, title="District", cex.title=1)
+        )
+```
+
+
