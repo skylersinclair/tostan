@@ -18,36 +18,55 @@ write.csv(village_types, file = "village_types.csv", row.names = FALSE)
 Now I need to get one large data frame to use from the distinct country/period csv files.
 ```{r}
 Mali <- read.csv("17 02 21 MALI_EF CG3_Questionnaire individuel-v2.csv", na.strings = '---', check.names=FALSE)
-Mali_unc <- read.csv("17 02 21 MALI_EF CG3_Questionnaire individuel-v2.csv", na.strings = '---', check.names=FALSE)
 Mauri <- read.csv("17 02 21 MAUR_EF CG3_Questionnaire individuel-v2.csv", na.strings = '---', check.names=FALSE)
+GB <- read.csv("17-02-21-GB_EF_CG3_Questionnaire individuel-v2.csv", na.strings = '---', check.names=FALSE)
 source("clean_names.R")
 names(Mali) <- clean_names(Mali)
 names(Mauri) <- clean_names(Mauri)
+names(GB) <- clean_names(GB)
 Mali$country <- "Mali"
 Mauri$country <- "Mauritania"
+GB$country <- "Guinea-Bisseau"
 Mali$period <- "EF"
 Mauri$period <- "EF"
-total <- rbind(Mali, Mauri)
+GB$period <- "EF"
+total <- rbind(Mali, Mauri,GB)
 head(total$interviewer)
+```
+Now add in village codes to total$village_type
+```{r}
+dict <- read.csv("village_types.csv")
+total$village_type <- with(dict, village_type[match(total$village, village)])
 ```
 
 now to figure out how to do calculations on this stuff!
 ```{r}
-# maybe first filter, then calculate? (then store?)
+# Number registered for elections. Actually matches data given to me, thank goodness (except for 63 vs 161 Mali participants)
 library(dplyr)
-filtered <- filter(total, interviewer=="participant", nombre_denfants>0) # same as total[interviewer==participant & nombre_denfants > 0]
-grouped <- group_by(total, country, period)
+filtered <- filter(total,village_type=='beneficiary' | is.na(village_type), interviewer!='membre_simple')
+grouped <- group_by(filtered, country, interviewer)
 result <- summarize(grouped,
+                    n = n(),
+                    num_registered = sum(electoral_list_inscription=='oui', na.rm=TRUE),
+                    num_total = length(!is.na(electoral_list_inscription)),
+                    percent_registered = num_registered / num_total
+)
+result      
+```
+```{r}
+# Number of children declared. Still need to see if I can filter some stuff for only one interviewer type.
+# Oh! I'm getting this wrong because it's yes or no by person, not total percent of kids overall.
+library(dplyr)
+filtered <- filter(total, interviewer=="participant", nombre_denfants>0) 
+grouped <- group_by(filtered, country, interviewer, village_type)
+result <- summarize(grouped,
+                    n = n(),
                     tot_under_one = sum(child_under_one_declared, na.rm=TRUE),
                     tot_one_to_five = sum(child_between_1_and_5_declared, na.rm=TRUE),
                     tot_kids = sum(nombre_denfants, na.rm=TRUE),
                     percent_declared = (tot_under_one + tot_one_to_five) / tot_kids
 )
 result      
-#total$percent_voted <- with(total,sum(child_under_one_declared[interviewer=="participant"], na.rm=TRUE))
-#k1 <- sum(EF_data$child_under_one_declared[EF_data$interviewer=="participant"], na.rm=TRUE)
-#k2 <- sum(EF_data$child_between_1_and_5_declared[EF_data$interviewer=="participant"], na.rm=TRUE)
-#total_kids <- sum(EF_data$nombre_denfants[EF_data$interviewer=="participant"], na.rm=TRUE)
 ```
 
 This is an R Notebook to help reproduce graphs frequently made by MERL, using example data from Guinea.
