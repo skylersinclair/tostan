@@ -37,7 +37,13 @@ now to figure out how to do calculations on this stuff!
 library(dplyr)
 filtered <- filter(total, interviewer=="participant", nombre_denfants>0) # same as total[interviewer==participant & nombre_denfants > 0]
 grouped <- group_by(total, country, period)
-
+result <- summarize(grouped,
+                    tot_under_one = sum(child_under_one_declared, na.rm=TRUE),
+                    tot_one_to_five = sum(child_between_1_and_5_declared, na.rm=TRUE),
+                    tot_kids = sum(nombre_denfants, na.rm=TRUE),
+                    percent_declared = (tot_under_one + tot_one_to_five) / tot_kids
+)
+result      
 #total$percent_voted <- with(total,sum(child_under_one_declared[interviewer=="participant"], na.rm=TRUE))
 #k1 <- sum(EF_data$child_under_one_declared[EF_data$interviewer=="participant"], na.rm=TRUE)
 #k2 <- sum(EF_data$child_between_1_and_5_declared[EF_data$interviewer=="participant"], na.rm=TRUE)
