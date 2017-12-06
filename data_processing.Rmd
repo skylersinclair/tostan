@@ -1,0 +1,85 @@
+---
+title: "Example Graphs from Tostan Data Input"
+output: html_notebook
+---
+```{r, echo=FALSE}
+# The following is some preparation and formatting code
+# load needed libraries
+library(RColorBrewer)
+library(lattice) 
+library(dplyr)
+
+# Some graph color settings, can ignore for now.
+myColours <- brewer.pal(4,"Blues")
+
+my.settings <- list(
+  superpose.polygon=list(col=myColours[2:4], border="transparent"),
+  strip.background=list(col=myColours[1]),
+  strip.border=list(col="black")
+)
+```
+
+First, import all of the data from the original .csv files. We are also giving every country .csv file a country name and whether the data is EF or EB.
+
+```{r}
+source("process_country.R")
+
+Mali <- process_country("17 02 21 MALI_EF CG3_Questionnaire individuel-v2.csv","Mali","EF")
+Mauri <- process_country("17 02 21 MAUR_EF CG3_Questionnaire individuel-v2.csv","Mauritania","EF")
+GB <- process_country("17-02-21-GB_EF_CG3_Questionnaire individuel-v2.csv","Guinea_Bisseau","EF")
+
+# Take each country and put them together into one large dataset called total
+total <- rbind(Mali, Mauri,GB)
+```
+Next, do some filtering/grouping/calculations to make the data into a useful format. Notice how here the commands are ordered to
+
+(1) Filter the original data, saving the result as 'filtered'
+
+(2) Group the filtered data, saving the result as 'grouped'
+
+(3) Calculate the desired statistics from the grouped data, saving the result as 'result'
+```{r}
+# Number registered for elections
+
+filtered <- filter(total,village_type=='beneficiary' | is.na(village_type), interviewer!='membre_simple')
+grouped <- group_by(filtered, country, interviewer, period)
+result <- summarize(grouped,
+                    n = n(),
+                    num_registered = sum(electoral_list_inscription=='oui', na.rm=TRUE),
+                    num_total = length(!is.na(electoral_list_inscription)),
+                    percent_registered = num_registered / num_total
+)
+result 
+
+barchart(percent_registered*100~period|country,
+         groups=interviewer,
+         data=result,
+         ylim=c(0,100),
+         ylab = "Percentage Registered",
+         main = "Percent Registered to Vote by Country",
+        auto.key=list(space="bottom", columns=3, title="Member", cex.title=1),
+        par.settings = my.settings
+        )
+```
+```{r}
+# Number of children declared. Not getting same n as reported in the result graphs given to me.
+total$declared_all_children <- (total$child_under_one_declared + total$child_between_1_and_5_declared) == total$nombre_denfants
+filtered <- filter(total, village_type=='beneficiary', nombre_denfants>0) 
+grouped <- group_by(filtered, country, interviewer, period)
+result <- summarize(grouped,
+                    n = n(),
+                    number_with_all_declared = length(declared_all_children[declared_all_children==TRUE]),
+                    percent_declared = number_with_all_declared / n
+)
+result 
+
+barchart(percent_declared*100~period|country,
+         groups=interviewer,
+         data=result,
+         ylim=c(0,100),
+         ylab = "Percentage Declared",
+         main = "Percent Declared All Children",
+        auto.key=list(space="bottom", columns=3, title="Member Type", cex.title=1),
+        par.settings = my.settings
+        )
+```

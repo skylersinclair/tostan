@@ -45,4 +45,6 @@ clean_names <- function(data){
   # before the last period and change them to "" (delete them)
   names(data) <-  sub(".*\\.", "", names(data))
   
+  # Note returns names(data), the variable assigned to on the last line of code
+  
 }
