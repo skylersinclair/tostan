@@ -149,8 +149,8 @@ my.settings <- list(
 )
 
 library(lattice) 
-barchart(percentage_declared*100~period|country,
-         groups=interviewer,data=x,
+barchart(x$percentage_declared*100~x$period|x$country,
+         groups=x$interviewer,data=x,
          ylim=c(0,100),
          ylab = "Percentage Declared",
          main = "Title Here",

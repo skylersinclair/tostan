@@ -47,4 +47,9 @@ clean_names <- function(data){
   
   # Note returns names(data), the variable assigned to on the last line of code
   
+  #YAY NEW WA
+  Y
+  #str_extract_all(x,"[a-zA-Z]{1,}")
+  paste(x,"_")
+  
 }
