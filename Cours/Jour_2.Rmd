@@ -1,5 +1,5 @@
 ---
-title: "Tostan Jour 2"
+title: "Tostan Jour 2: Data Frames"
 output: html_notebook
 ---
 Repasse de hier! 
@@ -85,7 +85,7 @@ donnee[donnee$pays=='GB',]
 
 Faites un data frame ou il y a seulement les adoptee
 ```{r}
-donnee[donnee$interviewer=='simple',]
+donnee[donnee$interviewer=='adoptee',]
 ```
 On a les autre commandes, comme != (not equals), >, <=.
 ```{r}
@@ -97,14 +97,13 @@ donnee[donnee$temps!='EF',]
 ```
 Faites un data frame ou pourcentage_declarer > .5
 ```{r}
-donnee[donnee['pourcentage_declarer']>0.5,]
+donnee[donnee$pourcentage_declarer>0.5,]
 ```
 Faites un data frame ou nombre_denfants > 1. Que pensez-vous qu'il se passera si vous executez ce code? Combien de lignes est-ce que on va voir?
 ```{r}
 donnee[donnee$nombre_denfants>1,]
 ```
-Uh oh, il y a les NA! is.na(x) dit si un variable est NA, et ! est 'not'm donc !is.na(x) dit si un variable n'est pas NA. 
-Faites un data frame ou nombre_denfants n'est pas NA. 
+Uh oh, il y a les NA! is.na(x) dit si un variable est NA, et ! est 'not' donc !is.na(x) dit si un variable n'est pas NA, comme ici:
 ```{r}
 donnee[!is.na(donnee$nombre_denfants),]
 ```
@@ -123,11 +122,11 @@ Ton tour a ecrire! Faites un data frame ou le pourcentage declarer est plus que 
 ```{r}
 donnee[!is.na(donnee$nombre_denfants) & donnee$pourcentage_declarer>=0.66,]
 ```
-Faites un data frame ou le interviewer est simple ou participant mais pas adoptee. Est-ce que tu peux penser en deux manere de faire ca?
+Faites un data frame ou le interviewer est simple ou participant mais pas adoptee. Est-ce que tu peux penser en deux maneres de faire ca?
 ```{r}
 donnee[donnee$interviewer!='adoptee',]
 ```
-
+On peut aussi faires les maths avec les columnes!
 ```{r}
 sum(donnee$pourcentage_declarer)
 mean(donnee$pourcentage_declarer)
@@ -137,6 +136,12 @@ Que pensez-vous qu'il se passera si on fait un sum de nombre_denfants?
 ```{r}
 sum(donnee$nombre_denfants)
 ```
+Hereusement, on peut filtrer avec is.na()
 ```{r}
 sum(donnee[!is.na(donnee$nombre_denfants),]$nombre_denfants)
 ```
+On peut aussi utiliser sum. Regarde ?sum pour voir qu'il y a un na.rm option!
+```{r}
+sum(donnee$nombre_denfants,na.rm = TRUE)
+```
+Finalment, SAPPLY
