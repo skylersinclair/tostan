@@ -136,12 +136,22 @@ Que pensez-vous qu'il se passera si on fait un sum de nombre_denfants?
 ```{r}
 sum(donnee$nombre_denfants)
 ```
-Hereusement, on peut filtrer avec is.na()
-```{r}
-sum(donnee[!is.na(donnee$nombre_denfants),]$nombre_denfants)
-```
-On peut aussi utiliser sum. Regarde ?sum pour voir qu'il y a un na.rm option!
+Hereusement, on peut filtrer pour les NAs. Regarde ?sum pour voir qu'il y a un na.rm option! 
 ```{r}
 sum(donnee$nombre_denfants,na.rm = TRUE)
 ```
-Finalment, SAPPLY
+Et si on veut faire une chose avec tout les columnes?
+```{r}
+sapply(donnee,class)
+sapply(donnee,length)
+```
+Qu'est-ce que tu pense va a passer avec cette code?
+```{r}
+donnee[sapply(donnee,is.numeric)] 
+```
+Challenge: comment est-ce que on peut trouver le moyenne de chaque columne de donnee que est numeric, utiliser
+sapply?
+```{r}
+sapply(donnee[sapply(donnee,is.numeric)],mean,na.rm=TRUE)
+```
+
