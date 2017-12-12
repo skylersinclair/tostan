@@ -77,6 +77,19 @@ Comment est-ce que on peut arregler le probleme? Regarde ?read.csv ou google
 ```{r}
 d2 <- read.csv("les_donnees2.csv", na.strings = '---')
 head(d2)
+sapply(d2,class)
+```
+
+Comment est-ce que on peut ecrire a .sav pour SPSS? Google 'r write to .sav' et lis le premier link!
+https://www.statmethods.net/input/exportingdata.html 
+Le 'library' function veut dire que on a besoin de telecharger un library, qui a les functions extras.
+Ici, on a besoin de telecharger le haven library. On doit seulement faire ca un fois, avec le command
+install.packages("haven") ou aller a tools->install packages en haut
+apres, on doit dire library(haven) un fois en chaque fiche ou on veut utiliser les functions de haven.
+```{r}
+# install.packages("haven")
+library(haven)
+write_sav(d2, "d2-test-spss.sav")
 ```
 
 then how to export to spss (this will involve downloading and using a library package)

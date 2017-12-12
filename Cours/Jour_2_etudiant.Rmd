@@ -1,0 +1,157 @@
+---
+title: "Tostan Jour 2: Data Frames"
+output: html_notebook
+---
+Repasse de hier! 
+
+Sur la premiere ligne, declarez une variable x et attribuez-lui la valeur 5. 
+Sur la deuxieme ligne, tapez 'x' pour que R imprime la valeur de x lorsque vous executez le code.
+Ex?cutez le code en tapant control shift entrez alors que la souris est dans ce bloc de code.
+```{r}
+x <- 5
+x
+```
+Que pensez-vous qu'il se passera si vous executez ce code?
+
+```{r}
+var <- 7
+var <- var * 3
+var
+class(var)
+```
+Declarer une variable y qui est un vecteur qui contient les cha?nes "tostan" "tostan" "cool" "cool".
+Sur la deuxieme ligne, on va demander le class de y.
+```{r}
+y <-
+class(y)
+```
+Faites de y un facteur, puis on va demander de nouveau la classe de y. Hint: factor() est un funtion en R.
+```{r}
+y <-
+class(y)
+```
+Finalment, faites de y un numeric, puis demandez de nouveau la classe de y. Hint: as.numeric() est un funtion en R.
+```{r}
+y <-
+class(y)
+```
+
+
+```{r}
+pays <- c('GB','GB','GB','SEN','SEN','SEN')
+interviewer <- c('simple','adoptee','participant','simple','adoptee','participant')
+temps <- c('EB','EF','EF','EB','EF','EF')
+pourcentage_declarer <- c(0.82,0.56,0.44,0.66,0.29,0.45)
+nombre_denfants <- c(1,2,NA,5,NA,2)
+donnee <- data.frame(pays,interviewer,temps,pourcentage_declarer, nombre_denfants)
+
+donnee
+```
+
+On peut penser en donnee comme une matrice
+```{r}
+donnee[1,]
+```
+```{r}
+donnee[,1]
+```
+```{r}
+donnee[4,1]
+```
+
+Qu'est-ce que vous tapez pour trouver l'entre 0,29?
+```{r}
+
+```
+
+Heureusement, il existe des moyens plus simples de trouver les donn?es dont vous avez besoin dans R!
+```{r}
+names(donnee)
+```
+
+```{r}
+donnee[2,'pays']
+```
+```{r}
+donnee['pays']
+```
+```{r}
+donnee['pays']=='GB'
+```
+```{r}
+donnee[donnee['pays']=='GB',]
+donnee[donnee$pays=='GB',]
+```
+
+Faites un data frame ou il y a seulement les adoptee
+```{r}
+
+```
+On a les autre commandes, comme != (not equals), >, <=.
+```{r}
+donnee[donnee$interviewer!='simple',]
+```
+Faites un data frame ou il y a seulement les EB. Utilise !=.
+```{r}
+
+```
+Faites un data frame ou pourcentage_declarer > .5
+```{r}
+
+```
+Faites un data frame ou nombre_denfants > 1. Que pensez-vous qu'il se passera si vous executez ce code? Combien de lignes est-ce que on va voir?
+```{r}
+
+```
+Uh oh, il y a les NA! is.na(x) dit si un variable est NA, et ! est 'not' donc !is.na(x) dit si un variable n'est pas NA, comme ici:
+```{r}
+donnee[!is.na(donnee$nombre_denfants),]
+```
+
+Et si on veux les deux chose (not NA et > 1)? On peut utiliser &, que veut dir AND (et), comme ici:
+```{r}
+donnee[!is.na(donnee['nombre_denfants']) & donnee['nombre_denfants']>1,]
+```
+
+Il y a aussi un OR (ou), |. Que pensez-vous qu'il se passera si vous executez ce code?
+```{r}
+donnee[is.na(donnee$nombre_denfants) | donnee$nombre_denfants>=5,]
+```
+
+Ton tour a ecrire! Faites un data frame ou le pourcentage declarer est plus que o egal a .66 et le nombre d'enfants n'est pas NA.
+```{r}
+
+```
+Faites un data frame ou le interviewer est simple ou participant mais pas adoptee. Est-ce que tu peux penser en deux maneres de faire ca?
+```{r}
+
+```
+On peut aussi faires les maths avec les columnes!
+```{r}
+sum(donnee$pourcentage_declarer)
+mean(donnee$pourcentage_declarer)
+median(donnee$pourcentage_declarer)
+```
+Que pensez-vous qu'il se passera si on fait un sum de nombre_denfants?
+```{r}
+sum(donnee$nombre_denfants)
+```
+Hereusement, on peut filtrer pour les NAs. Regarde ?sum pour voir qu'il y a un na.rm option! 
+```{r}
+sum(donnee$nombre_denfants,na.rm = TRUE)
+```
+Et si on veut faire une chose avec tout les columnes?
+```{r}
+sapply(donnee,class)
+sapply(donnee,length)
+```
+Qu'est-ce que tu pense va a passer avec cette code?
+```{r}
+donnee[sapply(donnee,is.numeric)] 
+```
+Challenge: comment est-ce que on peut trouver le moyenne de chaque columne de donnee que est numeric, utiliser
+sapply?
+```{r}
+
+```
+
