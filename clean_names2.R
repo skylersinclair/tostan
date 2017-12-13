@@ -32,11 +32,12 @@ clean_names2 <- function(data){
   # Here .* means any number of characters and \\. means a period, so this says take all the characters
   # before the last period and change them to "" (delete them)
   names(data) <-  sub(".*\\.", "", names(data))
+  names(data) <- make.names(names(data))
   
   # Note returns names(data), the variable assigned to on the last line of code
   
-  #YAY NEW WAY
-  names(data) <- sapply(str_extract_all(names(data),"[a-zA-Z0-9]{1,}"),paste,collapse='_')
+  #If want underscores rather than periods like make.names will do
+  #names(data) <- sapply(str_extract_all(names(data),"[a-zA-Z0-9]{1,}"),paste,collapse='_')
 
   
 }

@@ -21,8 +21,9 @@ Mali <- read.csv("17 02 21 MALI_EF CG3_Questionnaire individuel-v2.csv", na.stri
 Mauri <- read.csv("17 02 21 MAUR_EF CG3_Questionnaire individuel-v2.csv", na.strings = '---', check.names=FALSE)
 GB <- read.csv("17-02-21-GB_EF_CG3_Questionnaire individuel-v2.csv", na.strings = '---', check.names=FALSE)
 source("clean_names.R")
-names(Mali) <- clean_names(Mali)
-names(Mauri) <- clean_names(Mauri)
+source("clean_names2.R")
+names(Mali) <- clean_names2(Mali)
+names(Mauri) <- clean_names2(Mauri)
 names(GB) <- clean_names(GB)
 Mali$country <- "Mali"
 Mauri$country <- "Mauritania"
@@ -30,8 +31,10 @@ GB$country <- "Guinea-Bisseau"
 Mali$period <- "EF"
 Mauri$period <- "EF"
 GB$period <- "EF"
-total <- rbind(Mali, Mauri,GB)
-head(total$interviewer)
+#total <- rbind(Mali, Mauri,GB)
+#head(total$interviewer)
+names(Mali)
+#head(names(GB))
 ```
 Now add in village codes to total$village_type
 ```{r}

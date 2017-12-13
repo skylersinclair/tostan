@@ -98,3 +98,100 @@ then say you can also import/export to excel if you want (maybe say that library
 Next: csv with sad variable names that make_names will fix (it'll do so automatically, so let them change and notice, then try with them not changed, see the sadness)
 then start with string manipulation stuff :D :D
 
+Examples of things you can do to strings - sub, gsub
+```{r}
+noms <- c("Donnee_nom_1","DONNEE_NOM_2","Donnee(nom3)","donnee-nom-nom-4!")
+```
+
+```{r}
+gsub("n", "*", noms)
+sub("n","*",noms)
+tolower(noms)
+toupper(noms)
+```
+```{r}
+gsub("Donnee","", noms)
+```
+```{r}
+noms_lower <- tolower(noms)
+gsub("donnee","", noms_lower)
+```
+
+Qu'est-ce on peut faire pour trouver "village", "interviewer", etc?
+```{r}
+ex1 <- c("example.village","example.interviewer","example.pays","example.location")
+
+gsub("example.","",ex1)
+```
+Et en cette example?
+```{r}
+ex2 <- c("Village.village","village.interviewer","Village.pays","village.location")
+
+ex2_lower <- tolower(ex2)
+gsub("village.","",ex2_lower)
+```
+```{r}
+blah <- c("blah?village", "blah1blah2blah1234?interviewer", "blah_blah?pays")
+gsub("?","",blah)
+```
+Pour tout les characteres: . \ | ( ) [ { $ * + ? on a besoin de utiliser \\
+```{r}
+gsub("\\?","",blah)
+```
+Par example, * dit 0 or more
+. dit any character so 
+.* dit zero or more of any character
+[0-9] dit les numeros
+[a-z] lettres minuscule
+[A-Z] lettres majuscule
+```{r}
+gsub(".*\\?","",blah)
+gsub("\\?.*","",blah)
+gsub("[0-9]","_",blah)
+```
+```{r}
+ex3 <- c("donnee:village","donnee:example:interviewer","donnee:example:example:pays")
+gsub(".*\\:","",ex3)
+```
+```{r}
+ex4 <- c("village1donnee_example","interviewer2donnee_example","pays3donnee_example")
+gsub("[0-9].*","",ex4)
+```
+
+Pourquoi est-ce que R n'aime pas les nom de les variable ici?
+```{r}
+nom-variable <- 5
+cette(variable) <-6
+un|variable <- 7
+```
+```{r}
+noms_mal <- c("nom-variable", "cette(variable)","un|variable")
+make.names(noms_mal)
+```
+```{r}
+noms_mal2 <-c("example.village(nombre denfants)","example.longditude | location")
+noms_mal2 <- gsub(".*\\.","",noms_mal2)
+noms_mal2
+make.names(noms_mal2)
+```
+
+```{r}
+ex5 <- read.csv("les_donnees3.csv")
+names(ex5)
+```
+```{r}
+ex5_2 <- read.csv("les_donnees3.csv",check.names=FALSE)
+names(ex5_2)
+```
+```{r}
+library(xlsx)
+ex6_excel <- read.xlsx("EB_BG_QI_Global.xlsx", sheetName = "Global")
+names(ex6_excel)
+
+```
+```{r}
+ex6 <- read.csv("EB_BG_QI_Global.csv", na.strings = '---', check.names=FALSE)
+names(ex6)
+head(ex6)
+```
+
