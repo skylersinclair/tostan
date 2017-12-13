@@ -1,0 +1,15 @@
+---
+title: "Convert CSV to SPSS"
+output: html_notebook
+---
+
+```{r}
+library(haven)
+g <- read.csv("penda_donnee.csv",na.strings = '---', check.names = FALSE)
+names(g) <- gsub(".*\\.","",names(g))
+g$CE6x3b_autre_raisons <- as.character(g$CE6x3b_autre_raisons)  # row 1385 has a really long answer, reencoding shortens the space it takes up
+g$CE6x3b_autre_raisons <- enc2utf8(g$CE6x3b_autre_raisons)
+write_sav(g,"donnee_spss2.sav")
+
+```
+

@@ -1,0 +1,195 @@
+---
+title: "Tostan Jour 3: Input/Output et Chaines"
+output: html_notebook
+---
+
+Repasse de hier: Lis les erreures de chaque bloque de code et change le code pour le arregler.
+
+```{r}
+y <- c("bonjour","bonsoir","bonsoir', "bonjour")
+```
+```{r}
+pomme_de_terre <- 4
+orange <- 10
+orange <- 5 * pome_de_terre
+```
+```{r}
+pays <- c('GB','GB','GB','SEN','SEN','SEN')
+interviewer <- c('simple','adoptee','participant','simple','adoptee','participant')
+temps <- c('EB','EF','EF','EB','EF','EF')
+pourcentage_declarer <- c(0.82,0.56,0.44,0.66,0.29,0.45)
+nombre_denfants <- c(1,2,NA,5,NA,2)
+donnee <- data.frame(pays,interviewer,temps,pourcentage_declarer, nombre_denfants)
+
+donnee[pays]
+```
+```{r}
+donnee[donnee$interviewer!='simple']
+```
+
+Y maintenant, les chose nouveaux!
+
+Notre example data frame donnee est bon, mais qu'est-ce que on peut faire si on veut utilizer les donnees
+qu'on a deja trouver? Pour ca, R a beaucoup de IMPORT FUNCTIONS.
+
+Le plus comune c'est import de csv. Par example, si on a un csv 'les_donnee.csv' qui est dans le meme folder que cette fiche, on peut dire
+```{r}
+d <- read.csv("les_donnees.csv")
+d
+```
+Et si on veut savoir plus de cette function ?read.csv On peut ecrire ?read.csv ou help(read.csv), et regarder a la droite
+```{r}
+?read.csv
+```
+
+
+Il y a beaucoup de donnee! Si on veut seulement regardee les premiere 5 lignes, on peut utiliser le function head()
+```{r}
+head(d)
+```
+Qu'est-ce qu'on peut apprendre si on regarde ?head ?
+```{r}
+?head
+head(d,10)
+tail(d)
+```
+Un peut plus de repasse! Comment est-ce que on peut trouver le moyenne de registrer, pour les personnes que on un numbre de enfant que n'est pas NA?
+```{r}
+
+```
+Comment est-ce que on peut voire le class de chaque columne, rapidement?
+```{r}
+
+```
+Cool! On a les facteurs, automatiquement! 
+Bien, on va faire le meme chose avec un otre csv. Ecris le code pour import les donnees 'les_donnees2.csv'
+```{r}
+d2 <- read.csv("les_donnees2.csv")
+```
+Regard le head de d2 et le class de chaque variable. Essay de voir le sum de nombre_denfants. Est-ce que tout est comme on veut?
+```{r}
+head(d2)
+sapply(d2, class)
+sum(d2$nombre_denfants, na.rm = TRUE)
+```
+Qu'est-ce qui se passe? Ourvre 'les_donnee.csv' et 'les_donnees2.csv' directement pour voir la diference.
+Comment est-ce que on peut arregler le probleme? Regarde ?read.csv ou google
+```{r}
+d2 <- read.csv("les_donnees2.csv", na.strings = '---')
+head(d2)
+sapply(d2,class)
+```
+
+Comment est-ce que on peut ecrire a .sav pour SPSS? Google 'r write to .sav' et lis le premier link!
+https://www.statmethods.net/input/exportingdata.html 
+Le 'library' function veut dire que on a besoin de telecharger un library, qui a les functions extras.
+Ici, on a besoin de telecharger le haven library. On doit seulement faire ca un fois, avec le command
+install.packages("haven") ou aller a tools->install packages en haut
+apres, on doit dire library(haven) un fois en chaque fiche ou on veut utiliser les functions de haven.
+```{r}
+# install.packages("haven")
+library(haven)
+write_sav(d2, "d2-test-spss.sav")
+```
+
+then how to export to spss (this will involve downloading and using a library package)
+then say you can also import/export to excel if you want (maybe say that library/functions or at least give a link or have them search for it?)
+
+Next: csv with sad variable names that make_names will fix (it'll do so automatically, so let them change and notice, then try with them not changed, see the sadness)
+then start with string manipulation stuff :D :D
+
+Examples of things you can do to strings - sub, gsub
+```{r}
+noms <- c("Donnee_nom_1","DONNEE_NOM_2","Donnee(nom3)","donnee-nom-nom-4!")
+```
+
+```{r}
+gsub("n", "*", noms)
+sub("n","*",noms)
+tolower(noms)
+toupper(noms)
+```
+```{r}
+gsub("Donnee","", noms)
+```
+```{r}
+noms_lower <- tolower(noms)
+gsub("donnee","", noms_lower)
+```
+
+Qu'est-ce on peut faire pour trouver "village", "interviewer", etc?
+```{r}
+ex1 <- c("example.village","example.interviewer","example.pays","example.location")
+
+
+```
+Et en cette example?
+```{r}
+ex2 <- c("Village.village","village.interviewer","Village.pays","village.location")
+
+```
+```{r}
+blah <- c("blah?village", "blah1blah2blah1234?interviewer", "blah_blah?pays")
+gsub("?","",blah)
+```
+Pour tout les characteres: . \ | ( ) [ { $ * + ? on a besoin de utiliser \\
+```{r}
+gsub("\\?","",blah)
+```
+Par example, * dit 0 or more
+. dit any character so 
+.* dit zero or more of any character
+[0-9] dit les numeros
+[a-z] lettres minuscule
+[A-Z] lettres majuscule
+```{r}
+gsub(".*\\?","",blah)
+gsub("\\?.*","",blah)
+gsub("[0-9]","_",blah)
+```
+```{r}
+ex3 <- c("donnee:village","donnee:example:interviewer","donnee:example:example:pays")
+
+```
+```{r}
+ex4 <- c("village1donnee_example","interviewer2donnee_example","pays3donnee_example")
+
+```
+
+Pourquoi est-ce que R n'aime pas les nom de les variable ici?
+```{r}
+nom-variable <- 5
+cette(variable) <-6
+un|variable <- 7
+```
+```{r}
+noms_mal <- c("nom-variable", "cette(variable)","un|variable")
+make.names(noms_mal)
+```
+```{r}
+noms_mal2 <-c("example.village(nombre denfants)","example.longditude | location")
+noms_mal2 <- gsub(".*\\.","",noms_mal2)
+noms_mal2
+make.names(noms_mal2)
+```
+
+```{r}
+ex5 <- read.csv("les_donnees3.csv")
+names(ex5)
+```
+```{r}
+ex5_2 <- read.csv("les_donnees3.csv",check.names=FALSE)
+names(ex5_2)
+```
+```{r}
+library(xlsx)
+ex6_excel <- read.xlsx("EB_BG_QI_Global.xlsx", sheetName = "Global")
+names(ex6_excel)
+
+```
+```{r}
+ex6 <- read.csv("EB_BG_QI_Global.csv", na.strings = '---', check.names=FALSE)
+names(ex6)
+head(ex6)
+```
+
