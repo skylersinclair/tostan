@@ -1,9 +1,13 @@
 ---
 title: "Monthly Graphs"
-output: html_notebook
+output:
+  html_notebook: default
+  word_document: default
 ---
 
-```{r}
+Cette document fait les graphs automatiquement chaque mois quand on a les nouveau donnees.
+
+```{r, echo=FALSE, results=FALSE}
 # Les mois qu'on va utiliser, en le correct ordre
 mes_mois = c("Janvier","Fevrier","Mars")
 
@@ -17,7 +21,7 @@ mois_3$Mois <- mes_mois[3]
 d <- rbind(mois_1,mois_2,mois_3)
 ```
 
-```{r}
+```{r, echo=FALSE, results=FALSE}
 
 # On doit utiliser les library ici en cette fiche
 library(dplyr)
@@ -32,8 +36,9 @@ mes_mois <- c("Janvier","Fevrier","Mars")
 # Les pays pour le legende et le mot ensemble, en l'ordre qu'on veut
 mes_pays <- c("Ensemble","Guinee", "Unknown")
 
-# Les couleurs de les lignes
-mes_couleurs <- brewer.pal(3,"Blues")
+# Les couleurs de les lignes. Si tu veux voir les options, type display.brewer.all() in the console ou aller a
+# http://www.r-graph-gallery.com/38-rcolorbrewers-palettes/
+mes_couleurs <- brewer.pal(3,"Accent")
 
 # Les types de point (*, o, +, etc)
 mes_points <- c(8,9,16)
@@ -52,50 +57,46 @@ mon_numero_de_colonnes <- 1
 
 
 
-```{r}
+```{r, echo=FALSE, results=FALSE}
+# Premiere, on calcule les statistique pour chaque pays
 filtered <- filter(d)
 grouped <- group_by(filtered,Mois,Pays)
 result <- summarize(grouped,
                     n_femmes = sum(Nombre.femmes, na.rm=TRUE),
                     n_hommes = sum(Nombre.hommes, na.rm=TRUE),
                     n_garcons = sum(Nombre.garçons, na.rm=TRUE),
-                    n_filles = sum(Nombre.filles, na.rm=TRUE)
+                    n_filles = sum(Nombre.filles, na.rm=TRUE),
+                    n_femmes_abandonne = sum(Nombre.de.femmes.qui.ont.abandonné, na.rm=TRUE)
 )
 
+# Segonde, on calcule les statistique pour tout les pays ensemble
 ensemble <- group_by(filtered, Mois)
 ensemble_result <- summarize(ensemble,
                     n_femmes = sum(Nombre.femmes, na.rm=TRUE),
                     n_hommes = sum(Nombre.hommes, na.rm=TRUE),
                     n_garcons = sum(Nombre.garçons, na.rm=TRUE),
-                    n_filles = sum(Nombre.filles, na.rm=TRUE)
+                    n_filles = sum(Nombre.filles, na.rm=TRUE),
+                    n_femmes_abandonne = sum(Nombre.de.femmes.qui.ont.abandonné, na.rm=TRUE)
 )
 ensemble_result$Pays <- 'Ensemble'
 
 
-
-
+# Troisieme, on combine les deux datframe et change les type de mois et pays a facteur
 d_ensemble <- bind_rows(result, ensemble_result)
 d_ensemble$Mois <- factor(d_ensemble$Mois, levels = mes_mois, order=TRUE)
 d_ensemble$Pays <- factor(d_ensemble$Pays)
+# On aussi garde les noms de les pays pour la legende
 noms_pays <- levels(d_ensemble$Pays)
+```
 
-
+Les donnees, pour voir les chifres avant de faires les graphs.
+```{r, echo=FALSE}
 d_ensemble
+```
 
-
-#https://www.statmethods.net/advgraphs/trellis.html
-xyplot(n_femmes~Mois,
-         groups = Pays,
-         data = d_ensemble[order(d_ensemble$Mois),],
-         type = 'b', #l for lines, b for both, p for points
-         ylim = c(0,max(d_ensemble$n_femmes)*1.2),
-         ylab = "Nombre",
-         xlab = '',
-         main = "Nombre de Femme Participants",
-         auto.key = list(space="right", columns=1, title="Pays")
-         )
-
-#https://www.statmethods.net/advgraphs/trellis.html
+Un graph de le numero de femmes que participe chaque mois en chaque pays.
+```{r,echo=FALSE}
+# Graph de nombre de femmes
 xyplot(n_femmes~Mois,
          groups = Pays,
          data = d_ensemble[order(d_ensemble$Mois),],
@@ -113,5 +114,53 @@ xyplot(n_femmes~Mois,
                      text=list(noms_pays)
                      )
          )
+```
 
+```{r,echo=FALSE}
+# Graph de nombre de hommes
+xyplot(n_hommes~Mois,
+         groups = Pays,
+         data = d_ensemble[order(d_ensemble$Mois),],
+         type = 'b',
+         ylim = c(0,max(d_ensemble$n_hommes)*1.2),
+         ylab = "Nombre",
+         xlab = '',
+         main = "Nombre de Hommes Participants",
+         lwd = mon_epaisseur, #line thickness
+         col = mes_couleurs,
+         pch = mes_points, #type of points
+         key = list(space = mon_space, columns=mon_numero_de_colonnes,
+                     lines = list(col = mes_couleurs, lwd = mon_epaisseur),
+                     points = list(col = mes_couleurs, pch = mes_points),
+                     text=list(noms_pays)
+                     )
+         )
+```
+```{r,echo=FALSE}
+# Graph pour nombre de garcons
+```
+
+```{r,echo=FALSE}
+# Graph pour nombre de filles
+```
+
+```{r,echo=FALSE}
+# Graph pour nombre de femmes abandonne
+xyplot(n_femmes_abandonne~Mois,
+         groups = Pays,
+         data = d_ensemble[order(d_ensemble$Mois),],
+         type = 'b',
+         ylim = c(0,max(d_ensemble$n_femmes_abandonne)*1.2),
+         ylab = "Nombre",
+         xlab = '',
+         main = "Nombre de Femmes Abandonne",
+         lwd = mon_epaisseur, #line thickness
+         col = mes_couleurs,
+         pch = mes_points, #type of points
+         key = list(space = mon_space, columns=mon_numero_de_colonnes,
+                     lines = list(col = mes_couleurs, lwd = mon_epaisseur),
+                     points = list(col = mes_couleurs, pch = mes_points),
+                     text=list(noms_pays)
+                     )
+         )
 ```
