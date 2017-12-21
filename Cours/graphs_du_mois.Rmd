@@ -1,0 +1,117 @@
+---
+title: "Monthly Graphs"
+output: html_notebook
+---
+
+```{r}
+# Les mois qu'on va utiliser, en le correct ordre
+mes_mois = c("Janvier","Fevrier","Mars")
+
+mois_1 <- read.csv("../GC2015-Janvier2.csv",na.strings = '_', encoding = 'UTF-8')
+mois_2 <- read.csv("GC2015-fevrier.csv",na.strings = '_', encoding = 'UTF-8')
+mois_3 <- read.csv("../GC2015-Mars.csv",na.strings = '_', encoding = 'UTF-8')
+
+mois_1$Mois <- mes_mois[1]
+mois_2$Mois <- mes_mois[2]
+mois_3$Mois <- mes_mois[3]
+d <- rbind(mois_1,mois_2,mois_3)
+```
+
+```{r}
+
+# On doit utiliser les library ici en cette fiche
+library(dplyr)
+library(lattice)
+library(RColorBrewer)
+
+# On peut changer le formatting pour tout les graphs ici!
+
+# Les mois qu'on va utiliser, en le correct ordre
+mes_mois <- c("Janvier","Fevrier","Mars")
+
+# Les pays pour le legende et le mot ensemble, en l'ordre qu'on veut
+mes_pays <- c("Ensemble","Guinee", "Unknown")
+
+# Les couleurs de les lignes
+mes_couleurs <- brewer.pal(3,"Blues")
+
+# Les types de point (*, o, +, etc)
+mes_points <- c(8,9,16)
+
+# Epaisseur de les lignes et points
+mon_epaisseur <- 2
+
+# Location de la legende
+mon_space <- "right"
+
+# Numero de colonnes en la legende
+mon_numero_de_colonnes <- 1
+
+```
+
+
+
+
+```{r}
+filtered <- filter(d)
+grouped <- group_by(filtered,Mois,Pays)
+result <- summarize(grouped,
+                    n_femmes = sum(Nombre.femmes, na.rm=TRUE),
+                    n_hommes = sum(Nombre.hommes, na.rm=TRUE),
+                    n_garcons = sum(Nombre.garçons, na.rm=TRUE),
+                    n_filles = sum(Nombre.filles, na.rm=TRUE)
+)
+
+ensemble <- group_by(filtered, Mois)
+ensemble_result <- summarize(ensemble,
+                    n_femmes = sum(Nombre.femmes, na.rm=TRUE),
+                    n_hommes = sum(Nombre.hommes, na.rm=TRUE),
+                    n_garcons = sum(Nombre.garçons, na.rm=TRUE),
+                    n_filles = sum(Nombre.filles, na.rm=TRUE)
+)
+ensemble_result$Pays <- 'Ensemble'
+
+
+
+
+d_ensemble <- bind_rows(result, ensemble_result)
+d_ensemble$Mois <- factor(d_ensemble$Mois, levels = mes_mois, order=TRUE)
+d_ensemble$Pays <- factor(d_ensemble$Pays)
+noms_pays <- levels(d_ensemble$Pays)
+
+
+d_ensemble
+
+
+#https://www.statmethods.net/advgraphs/trellis.html
+xyplot(n_femmes~Mois,
+         groups = Pays,
+         data = d_ensemble[order(d_ensemble$Mois),],
+         type = 'b', #l for lines, b for both, p for points
+         ylim = c(0,max(d_ensemble$n_femmes)*1.2),
+         ylab = "Nombre",
+         xlab = '',
+         main = "Nombre de Femme Participants",
+         auto.key = list(space="right", columns=1, title="Pays")
+         )
+
+#https://www.statmethods.net/advgraphs/trellis.html
+xyplot(n_femmes~Mois,
+         groups = Pays,
+         data = d_ensemble[order(d_ensemble$Mois),],
+         type = 'b',
+         ylim = c(0,max(d_ensemble$n_femmes)*1.2),
+         ylab = "Nombre",
+         xlab = '',
+         main = "Nombre de Femme Participants",
+         lwd = mon_epaisseur, #line thickness
+         col = mes_couleurs,
+         pch = mes_points, #type of points
+         key = list(space = mon_space, columns=mon_numero_de_colonnes,
+                     lines = list(col = mes_couleurs, lwd = mon_epaisseur),
+                     points = list(col = mes_couleurs, pch = mes_points),
+                     text=list(noms_pays)
+                     )
+         )
+
+```
