@@ -175,7 +175,47 @@ names(ex11) <- gsub("\\.\\.\\.",'_',names(ex11))
 head(names(ex11),15)
 ```
 
-
-
-
 ### Changing Column Types
+Sometimes, R might not guess the type (integer, numeric, string, factor, etc) of each column correctly. You can fix that before you export to SPSS. If you notice in you SPSS file that a column isn't the right type, you can change it using the commands
+```{r}
+ex12 <- read.csv("18 01 08 donnee.csv", na.strings = '---', check.names=FALSE)
+# Convert to integer
+ex12$Number <- as.integer(ex12$Number)
+# Convert to factor 
+ex12$localization.commune <- as.factor(ex12$localization.commune) 
+# Convert to decimal
+ex12$ethnie.nbre_groupe_ethnique <- as.numeric(ex12$ethnie.nbre_groupe_ethnique)
+# Convert to character
+ex12$interviewer <- as.character(ex12$interviewer)
+```
+
+## Writing/Exporting the Data
+Once your data is in a format you're happy with, you can export it to an sav file, which you can open in SPSS. To do so, we need to use a library (also known as a package) called haven. If you've never installed haven before, go ahead and click on Tools>Install Packages, type the word 'haven' into the packages bar, click install, and wait until the installation is complete. If you've already installed haven, or think you might have, go ahead and move on to the next step - if it turns out haven isn't installed, you'll get an error that reads
+
+**Error in library(haven) : there is no package called ‘haven’**
+
+in which case you should go install haven using the instructions above.
+
+Once haven is installed, we need to load it in a file if we want to use it. To load haven, we use the command library(haven). After that command, we can use the write_sav() file from the haven library to made an sav file, with the name of the data and new filename as arguments. The file will then appear in the same directory/folder as wherever the file executing the write_sav() command is saved.
+```{r, eval = FALSE}
+library(haven)
+ex13 <- read.csv("18 01 08 donnee.csv", na.strings = '---', check.names=FALSE)
+write_sav(ex13,"new_sav_file.sav")
+```
+If the write_sav() command executes without errors, you should be able to open your new sav file in SPSS now! You may get an error or two the first time you run your file, and that's okay, since there are ways to fix those errors. Here are some of the most likely errors you'll encounter:
+
+**Error: SPSS only supports levels with <= 120 characters Problems: `Number`**
+
+This means that R thinks that the Number column should be a factor, but there are over 120 different items in that column which is too many options for a factor in SPSS. Number should actually be an integer, so to fix this, you can use the as.integer function on the problematic column
+```{r, warning = FALSE}
+library(haven)
+ex13 <- read.csv("18 01 08 donnee.csv", na.strings = '---', check.names=FALSE)
+ex13$Number <- as.integer(ex13$Number)
+write_sav(ex13,"new_sav_file.sav")
+```
+
+like we saw in the data cleaning section. If the column with the error should actually be a string, you can change it to
+```{r}
+ex13$Number <- as.character(ex13$Number)
+```
+instead.
