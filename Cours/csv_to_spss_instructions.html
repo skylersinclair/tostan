@@ -134,25 +134,33 @@ $(document).ready(function () {
 <li>Export the data into an sav file.</li>
 </ol>
 <p>The following is an example piece of code. Lines starting with ‘#’ are comments, meaning that R ignores them.</p>
-<pre class="r"><code># STEP ONE: read (import) the data into R. Here we use the function read.csv, and the first entry '18 01 08 donnee.csv' is the name of the csv file we want to use. 
+<pre class="r"><code># STEP ONE: read (import) the data into R. Here we use the function read.csv, and the 
+# first entry '18 01 08 donnee.csv' is the name of the csv file we want to use. 
 # More on the import step in a later section.
 d &lt;- read.csv(&quot;18 01 08 donnee.csv&quot;, na.strings = &quot;---&quot;, check.names=FALSE)
 
-# STEP TWO: clean the data before saving it as an sav file. Here that means shortening the variable names and making sure the number column of the data is saved as an integer. 
+# STEP TWO: clean the data before saving it as an sav file. Here that means shortening 
+# the variable names and making sure the number column of the data is saved as an integer. 
 # More on the cleaning step in a later section.
 names(d) &lt;- gsub(&quot;.*\\.&quot;, &quot;&quot;,names(d))
 names(d) &lt;- make.names(names(d))
 names(d) &lt;- gsub(&quot;\\.\\.\\.&quot;,'_',names(d))
 d$Number &lt;- as.integer(d$Number)
 
-# STEP THREE: export (save) the data as an sav file using the write_sav function from the haven library. 
+# STEP THREE: export (save) the data as an sav file using the write_sav function from 
+# the haven library. 
 # More on the export step in a later section.
 library(haven)
 write_sav(d,&quot;exported_donnee.sav&quot;)</code></pre>
 </div>
 <div id="readingimporting-the-data" class="section level2">
 <h2>Reading/Importing the Data</h2>
-<p>To successfully read the data from a csv, there are three important questions to ask. 1. How are pieces of data separated in this csv file? By commas (the default) or by some other means (semicolons, spaces, etc)? 2. How are NAs represented in this csv file? 3. Do I want R to keep the original variable names, or can it fix the variable names so that they are readible in R?</p>
+<p>To successfully read the data from a csv, there are three important questions to ask.</p>
+<ol style="list-style-type: decimal">
+<li>How are pieces of data separated in this csv file? By commas (the default) or by some other means (semicolons, spaces, etc)?</li>
+<li>How are NAs represented in this csv file?</li>
+<li>Do I want R to keep the original variable names, or can it fix the variable names so that they are readible in R?</li>
+</ol>
 <div id="data-entry-separation" class="section level3">
 <h3>Data Entry Separation</h3>
 <p>To start to answer these questions, a good first step is to import the data into R using the read_csv command, then look at the first six lines of data using the head command.</p>
@@ -230,8 +238,72 @@ head(ex6)</code></pre>
 </div>
 <div id="cleaning-the-data" class="section level2">
 <h2>Cleaning the Data</h2>
+<p>Before exporting to SPSS, we often want to make the data easier to use. This might mean changing the variable names or the type (numerics, string, factor, etc) of a column of data.</p>
 <div id="changing-variable-names" class="section level3">
 <h3>Changing Variable Names</h3>
+<p>To change the variable names, we first need to know what the variable names are. We can figure that out using the command names().</p>
+<pre class="r"><code>ex7 &lt;- read.csv(&quot;Example.csv&quot;)
+names(ex7)</code></pre>
+<pre><code>## [1] &quot;ex.pays&quot;            &quot;ex.interviewer&quot;     &quot;ex.temps&quot;          
+## [4] &quot;ex.registrer&quot;       &quot;ex.nombre_denfants&quot;</code></pre>
+<p>Read through the names and decide: are you okay with the variable names, or would you like to reformat them? Reformatting them might mean shortening them, changing them from upper to lower case, or any other string manipulation you can come up with. If you’re happy with the variable names the way they are, great - you can skip this section! If you’re not happy with the variable names, ask yourself: can I write down clear instructions on how to change the names of these variables? Imagine you have to give these instructions to a stranger, along with the list of variable names. If they can use the instructions to change all of the variable correctly, then the instructions are good ones.</p>
+<p>Examples of good (clear) instructions:</p>
+<ul>
+<li>Remove all text up to and including the last period, keep everything to the right of the last period.</li>
+<li>Change all letters to lowercase and change all ‘…’ to ’_’</li>
+</ul>
+<p>If in this case we might decide to remove all text up to and including the last period. To do so, we can use the gsub() function.</p>
+<pre class="r"><code>ex8 &lt;- read.csv(&quot;Example.csv&quot;)
+names(ex8) &lt;- gsub('.*\\.','',names(ex8))
+names(ex8)</code></pre>
+<pre><code>## [1] &quot;pays&quot;            &quot;interviewer&quot;     &quot;temps&quot;           &quot;registrer&quot;      
+## [5] &quot;nombre_denfants&quot;</code></pre>
+<p>Note that we don’t just call gsub, we assign the result of the gsub to names(ex8) to update the variable names. Make sure to update the variable names by assigning a new value to names() every time you want to make a change, otherwise your work won’t be saved!</p>
+<p>If you can’t see any patterns in your variable names that will let you think of good change instructions, it might be easier to look at the original variable names instead (remember, unless you tell R otherwise, it replaces characters it can’t read in variable names to periods). To do so, use the check.names option we mentioned in the importing section:</p>
+<pre class="r"><code>ex9 &lt;- read.csv(&quot;Example.csv&quot;, check.names = FALSE)
+names(ex9)</code></pre>
+<pre><code>## [1] &quot;ex-pays&quot;            &quot;ex-interviewer&quot;     &quot;ex-temps&quot;          
+## [4] &quot;ex-registrer&quot;       &quot;ex-nombre_denfants&quot;</code></pre>
+<p>If you can see a good rule or set of instructions to use now, great. If not, R may not be able to help you, since you can’t tell R what to do if you don’t have instructions to give it!</p>
+<p>Here, we might decide to remove everything in the variable names up through the last dash ‘-’, or to simply remove all versions of the phrase ‘ex-’. Either works just fine, and the code for both are below:</p>
+<pre class="r"><code># Removing everything up through the last dash
+ gsub('.*-','',names(ex9))</code></pre>
+<pre><code>## [1] &quot;pays&quot;            &quot;interviewer&quot;     &quot;temps&quot;           &quot;registrer&quot;      
+## [5] &quot;nombre_denfants&quot;</code></pre>
+<pre class="r"><code># Removing all instances of the phrase 'ex-'
+gsub('ex-','',names(ex9))</code></pre>
+<pre><code>## [1] &quot;pays&quot;            &quot;interviewer&quot;     &quot;temps&quot;           &quot;registrer&quot;      
+## [5] &quot;nombre_denfants&quot;</code></pre>
+<p>Note that these are examples of us trying out code, but they haven’t assigned the output to names(), so none of the work is saved. If we see that they both work, we can pick either one to use. Let’s say we pick the first way. Then the code we would need to write to save the results of our gsub to the variable names is</p>
+<pre class="r"><code>names(ex9) &lt;- gsub('.*-','',names(ex9))</code></pre>
+<p>If you’re using the original variable names, after manipulating them you need to make sure R can read them. To do that, we use the make.names() function. If you forget this step, you might get errors in your R code or weird looking variables (v1, v2, etc) in your SPSS file.</p>
+<pre class="r"><code>names(ex9) &lt;- make.names(ex9)</code></pre>
+<p>You can read more about the <a href="http://www.endmemo.com/program/R/gsub.php">gsub function here</a> and more about <a href="http://www.gastonsanchez.com/Handling_and_Processing_Strings_in_R.pdf">string manipulations in general here</a>. There are a huge variety of commands you can use, but a summary of key commands likely to come up for Tostan data is</p>
+<pre class="r"><code>ex10 &lt;- read.csv(&quot;Example - Names.csv&quot;, check.names = FALSE)
+# The original names
+names(ex10)</code></pre>
+<pre><code>## [1] &quot;EXAMPLE-DATA.COUNTRY&quot;     &quot;EXAMPLE-DATA.INTERVIEWER&quot;
+## [3] &quot;EXAMPLE-DATA.PERIOD&quot;</code></pre>
+<pre class="r"><code># Removing all characters up through the last period (here, \\. represents a period)
+gsub('.*\\.','',names(ex10))</code></pre>
+<pre><code>## [1] &quot;COUNTRY&quot;     &quot;INTERVIEWER&quot; &quot;PERIOD&quot;</code></pre>
+<pre class="r"><code># Removing all characters up through the last dash
+gsub('.*-','',names(ex10))</code></pre>
+<pre><code>## [1] &quot;DATA.COUNTRY&quot;     &quot;DATA.INTERVIEWER&quot; &quot;DATA.PERIOD&quot;</code></pre>
+<pre class="r"><code># Removing a specific set of characters
+gsub('EXAMPLE-DATA.','',names(ex10))</code></pre>
+<pre><code>## [1] &quot;COUNTRY&quot;     &quot;INTERVIEWER&quot; &quot;PERIOD&quot;</code></pre>
+<pre class="r"><code># Changing a set of characters to another set of characters
+gsub('EXAMPLE-DATA','data', names(ex10))</code></pre>
+<pre><code>## [1] &quot;data.COUNTRY&quot;     &quot;data.INTERVIEWER&quot; &quot;data.PERIOD&quot;</code></pre>
+<pre class="r"><code># Changing the words to lowercase (to change to uppercase, use toupper())
+tolower(names(ex10))</code></pre>
+<pre><code>## [1] &quot;example-data.country&quot;     &quot;example-data.interviewer&quot;
+## [3] &quot;example-data.period&quot;</code></pre>
+<pre class="r"><code># Make the names readible by R
+make.names(names(ex10))</code></pre>
+<pre><code>## [1] &quot;EXAMPLE.DATA.COUNTRY&quot;     &quot;EXAMPLE.DATA.INTERVIEWER&quot;
+## [3] &quot;EXAMPLE.DATA.PERIOD&quot;</code></pre>
 </div>
 <div id="changing-column-types" class="section level3">
 <h3>Changing Column Types</h3>

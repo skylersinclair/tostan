@@ -93,6 +93,89 @@ Here, we can see that variable names that used to show up as 'ex.pays' and ex.in
 
 ## Cleaning the Data
 
+Before exporting to SPSS, we often want to make the data easier to use. This might mean changing the variable names or the type (numerics, string, factor, etc) of a column of data.
+
 ### Changing Variable Names
+
+To change the variable names, we first need to know what the variable names are. We can figure that out using the command names().
+```{r}
+ex7 <- read.csv("Example.csv")
+names(ex7)
+```
+Read through the names and decide: are you okay with the variable names, or would you like to reformat them? Reformatting them might mean shortening them, changing them from upper to lower case, or any other string manipulation you can come up with. If you're happy with the variable names the way they are, great - you can skip this section! If you're not happy with the variable names, ask yourself: can I write down clear instructions on how to change the names of these variables? Imagine you have to give these instructions to a stranger, along with the list of variable names. If they can use the instructions to change all of the variable  correctly, then the instructions are good ones. 
+
+Examples of good (clear) instructions:
+
+ * Remove all text up to and including the last period, keep everything to the right of the last period.
+ * Change all letters to lowercase and change all '...' to '_'
+
+If in this case we might decide to remove all text up to and including the last period. To do so, we can use the gsub() function.
+```{r}
+ex8 <- read.csv("Example.csv")
+names(ex8) <- gsub('.*\\.','',names(ex8))
+names(ex8)
+```
+Note that we don't just call gsub, we assign the result of the gsub to names(ex8) to update the variable names. Make sure to update the variable names by assigning a new value to names() every time you want to make a change, otherwise your work won't be saved!
+
+If you can't see any patterns in your variable names that will let you think of good change instructions, it might be easier to look at the original variable names instead (remember, unless you tell R otherwise, it replaces characters it can't read in variable names to periods). To do so, use the check.names option we mentioned in the importing section: 
+```{r}
+ex9 <- read.csv("Example.csv", check.names = FALSE)
+names(ex9)
+```
+If you can see a good rule or set of instructions to use now, great. If not, R may not be able to help you, since you can't tell R what to do if you don't have instructions to give it!
+
+Here, we might decide to remove everything in the variable names up through the last dash '-', or to simply remove all versions of the phrase 'ex-'. Either works just fine, and the code for both are below:
+```{r}
+# Removing everything up through the last dash
+ gsub('.*-','',names(ex9))
+# Removing all instances of the phrase 'ex-'
+gsub('ex-','',names(ex9))
+```
+Note that these are examples of us trying out code, but they haven't assigned the output to names(), so none of the work is saved. If we see that they both work, we can pick either one to use. Let's say we pick the first way. Then the code we would need to write to save the results of our gsub to the variable names is
+```{r}
+names(ex9) <- gsub('.*-','',names(ex9))
+```
+If you're using the original variable names, after manipulating them you need to make sure R can read them. To do that, we use the make.names() function. If you forget this step, you might get errors in your R code or weird looking variables (v1, v2, etc) in your SPSS file.
+```{r}
+names(ex9) <- make.names(ex9)
+```
+
+You can read more about the [gsub function here](http://www.endmemo.com/program/R/gsub.php) and more about [string manipulations in general here](http://www.gastonsanchez.com/Handling_and_Processing_Strings_in_R.pdf). There are a huge variety of commands you can use, but a summary of key commands likely to come up for Tostan data is
+
+```{r}
+ex10 <- read.csv("Example - Names.csv", check.names = FALSE)
+# The original names
+names(ex10)
+# Removing all characters up through the last period (here, \\. represents a period)
+gsub('.*\\.','',names(ex10))
+# Removing all characters up through the last dash
+gsub('.*-','',names(ex10))
+# Removing a specific set of characters
+gsub('EXAMPLE-DATA.','',names(ex10))
+# Changing a set of characters to another set of characters
+gsub('EXAMPLE-DATA','data', names(ex10))
+# Changing the words to lowercase (to change to uppercase, use toupper())
+tolower(names(ex10))
+# Make the names readible by R
+make.names(names(ex10))
+```
+You can also do several of these commands in a row. Note that order here matters! And remember to assign the new value to names() every time you use a command. For example, the following are the same string manipulation commands used at the example script at the top of this file.
+```{r}
+# Read in the data, using the original variable names
+ex11 <- read.csv("18 01 08 donnee.csv", check.names=FALSE)
+# Look at the first 15 variable names
+head(names(ex11),15)
+# Remove the text up through the last period
+names(ex11) <- gsub(".*\\.", "",names(ex11))
+# Change the variable names so that R can read them (this will create some '...')
+names(ex11) <- make.names(names(ex11))
+# Change instances of '...' to '_' to increase readability
+names(ex11) <- gsub("\\.\\.\\.",'_',names(ex11))
+# Look at the first 15 resulting variable names
+head(names(ex11),15)
+```
+
+
+
 
 ### Changing Column Types
