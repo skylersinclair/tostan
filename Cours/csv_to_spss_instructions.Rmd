@@ -192,7 +192,7 @@ ex12$interviewer <- as.character(ex12$interviewer)
 ## Writing/Exporting the Data
 Once your data is in a format you're happy with, you can export it to an sav file, which you can open in SPSS. To do so, we need to use a library (also known as a package) called haven. If you've never installed haven before, go ahead and click on Tools>Install Packages, type the word 'haven' into the packages bar, click install, and wait until the installation is complete. If you've already installed haven, or think you might have, go ahead and move on to the next step - if it turns out haven isn't installed, you'll get an error that reads
 
-**Error in library(haven) : there is no package called ‘haven’**
+*Error in library(haven) : there is no package called ‘haven’*
 
 in which case you should go install haven using the instructions above.
 
@@ -202,9 +202,13 @@ library(haven)
 ex13 <- read.csv("18 01 08 donnee.csv", na.strings = '---', check.names=FALSE)
 write_sav(ex13,"new_sav_file.sav")
 ```
-If the write_sav() command executes without errors, you should be able to open your new sav file in SPSS now! You may get an error or two the first time you run your file, and that's okay, since there are ways to fix those errors. Here are some of the most likely errors you'll encounter:
+If the write_sav() command executes without errors, you should be able to open your new sav file in SPSS now! You may get an error or two the first time you run your file, and that's okay, since there are ways to fix those errors. 
 
-**Error: SPSS only supports levels with <= 120 characters Problems: `Number`**
+### Errors in the R Code
+
+Here are some of the most likely errors you'll encounter:
+
+*Error: SPSS only supports levels with <= 120 characters Problems: `Number`*
 
 This means that R thinks that the Number column should be a factor, but there are over 120 different items in that column which is too many options for a factor in SPSS. Number should actually be an integer, so to fix this, you can use the as.integer function on the problematic column
 ```{r, warning = FALSE}
@@ -214,8 +218,30 @@ ex13$Number <- as.integer(ex13$Number)
 write_sav(ex13,"new_sav_file.sav")
 ```
 
-like we saw in the data cleaning section. If the column with the error should actually be a string, you can change it to
+like we saw in the data cleaning section. If the column with the error should actually be a string, then change it to characters using the command
 ```{r}
 ex13$Number <- as.character(ex13$Number)
 ```
-instead.
+After changing the format to character (or sometimes with columns that are already characters rather than factors) you might see the error
+
+*Error in write_sav_(data, normalizePath(path, mustWork = FALSE)) : Writing failure: A provided string value was longer than the available storage size of the specified column.*
+
+This means that one of the data entries is too long and takes up too much space (likely, it's a long text response to an open-ended question). One potential way of solving this is to reencode the problematic column in a way that takes up less space, which you can do using the function enc2utf8():
+```{r}
+ex13$Number <- enc2utf8(ex13$Number)
+```
+
+### Errors in the SAV File After Opening SPSS
+You may also see issues in the SAV file when you open it in SPSS. The most common such issue is that some or all of the variable names will be replaced by v1, v2, v3, etc. If all of the variable names are lost, you most likely forgot to make sure the names of the variables are readible in R. Add the line
+```{r, eval = FALSE}
+names(data) <- make.names(data)
+```
+before the write_sav() command in your code, replacing the word data above with the name of your data variable.
+
+If instead only some of the variables in your SPSS file are missing, you likely have some duplicate variable names in your naming scheme. Try adding the line 
+```{r, eval = FALSE}
+names(data)[duplicated(names(data))]
+```
+to your code, right before the write_sav() commmand, again replacing the word data with the name of your data variable. This line will print any duplicate names in your code, so if anything prints, you have duplicates! Rethink your naming scheme so that there are no longer duplicate variables. 
+
+
