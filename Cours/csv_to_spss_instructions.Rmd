@@ -21,7 +21,7 @@ The following is an example piece of code. Lines starting with '#' are comments,
 # STEP ONE: read (import) the data into R. Here we use the function read.csv, and the 
 # first entry '18 01 08 donnee.csv' is the name of the csv file we want to use. 
 # More on the import step in a later section.
-d <- read.csv("18 01 08 donnee.csv", na.strings = "---", check.names=FALSE)
+d <- read.csv("18 01 08 donnee.csv", na.strings = c("---",""), check.names=FALSE)
 
 # STEP TWO: clean the data before saving it as an sav file. Here that means shortening 
 # the variable names and making sure the number column of the data is saved as an integer. 
@@ -67,12 +67,14 @@ Sure enough, now the data loads in correctly.
 
 ### Non Applicables
 After loading in the data using the correct data entry separation, we also need to check that R has identified the NA entries in the data. The default way to write NA in R is 'NA', and if your data uses a different set of characters to represent NA entries, you need to tell R to look for that different set of characters. Find an NA element in the head entry of your dataset. Do you see it represented as the text NA, or something else?
-
 ```{r}
 ex4 <- read.csv("Example.csv")
 head(ex4)
 ```
 In this example, we see that the NA elements are represented as '---'. Since R doesn't know that '---' is NA, it will see '---' as a string, and therefore read any columns with '---' as strings or factors, even if the rest of the elements in the column are numeric. To fix this, we can use the na.strings argument in the read.csv function.
+
+
+Dans cet exemple, nous voyons que les éléments NA sont représentés par '---'. Puisque R ne sait pas que '---' est NA, il verra '---' comme une chaîne, et donc lira n'importe quelle colonne avec '---' comme chaînes ou facteurs, même si le reste des éléments dans la colonne sont numériques. Pour résoudre ce problème, nous pouvons utiliser l'argument na.strings dans la fonction read.csv.
 ```{r}
 ex5 <- read.csv("Example.csv", na.strings = '---')
 head(ex5)
@@ -81,14 +83,13 @@ Now, the NA entries show up as NA, like we want.
 
 ### Keeping or Fixing Variable Names
 
-Sometimes, the variable names (column headers) in the csv file will use characters R can't use as variable names. Example characters that are invalid in R variable names are -,*,$,+ and spaces. This is because these characters represent operations in r. For example, if you had variables a, b and a-b, how would R know if a-b means the variable 'a-b' or the variable 'a' minus the variable 'b'?
+Sometimes, the variable names (column headers) in the csv file will use characters R can't use as variable names. Example characters that are invalid in R variable names are -,*,$,+ and spaces. This is because these characters represent operations in R. For example, if you had variables a, b and a-b, how would R know if a-b means the variable 'a-b' or the variable 'a' minus the variable 'b'?
 
 If you don't tell R to keep the original variable names, it will fix all of the variable names by changing all the characters R can't use to periods. Sometimes, though, you'll want to keep the original variable names (we'll talk about when in the cleaning data section). If you want to keep the original variable names, you can do so using the check.names argument in the read.csv function.
 ```{r}
 ex6 <- read.csv("Example.csv", check.names = FALSE)
 head(ex6)
 ```
-
 Here, we can see that variable names that used to show up as 'ex.pays' and ex.interviewer' now are 'ex-pays' and 'ex-interviewer', as they were originally in the csv file.
 
 ## Cleaning the Data
@@ -117,7 +118,7 @@ names(ex8)
 ```
 Note that we don't just call gsub, we assign the result of the gsub to names(ex8) to update the variable names. Make sure to update the variable names by assigning a new value to names() every time you want to make a change, otherwise your work won't be saved!
 
-If you can't see any patterns in your variable names that will let you think of good change instructions, it might be easier to look at the original variable names instead (remember, unless you tell R otherwise, it replaces characters it can't read in variable names to periods). To do so, use the check.names option we mentioned in the importing section: 
+If you can't see any patterns in your variable names that will let you think of good change instructions, it might be easier to look at the original variable names instead (remember, unless you tell R otherwise, it replaces characters it can't read in variable names to periods). To do so, use the check.names option we mentioned in the importing section:
 ```{r}
 ex9 <- read.csv("Example.csv", check.names = FALSE)
 names(ex9)
@@ -125,6 +126,10 @@ names(ex9)
 If you can see a good rule or set of instructions to use now, great. If not, R may not be able to help you, since you can't tell R what to do if you don't have instructions to give it!
 
 Here, we might decide to remove everything in the variable names up through the last dash '-', or to simply remove all versions of the phrase 'ex-'. Either works just fine, and the code for both are below:
+
+Si vous pouvez voir une bonne règle ou un ensemble d'instructions à utiliser maintenant, génial. Sinon, R peut ne pas être en mesure de vous aider, car vous ne pouvez pas dire à R ce qu'il faut faire si vous n'avez pas d'instructions à lui donner!
+
+Ici, nous pouvons décider de supprimer tout le contenu des noms de variables dans le dernier tiret '-', ou de supprimer simplement toutes les versions de la phrase 'ex-'. Soit fonctionne très bien, et le code pour les deux sont ci-dessous:
 ```{r}
 # Removing everything up through the last dash
  gsub('.*-','',names(ex9))
@@ -139,9 +144,7 @@ If you're using the original variable names, after manipulating them you need to
 ```{r}
 names(ex9) <- make.names(ex9)
 ```
-
 You can read more about the [gsub function here](http://www.endmemo.com/program/R/gsub.php) and more about [string manipulations in general here](http://www.gastonsanchez.com/Handling_and_Processing_Strings_in_R.pdf). There are a huge variety of commands you can use, but a summary of key commands likely to come up for Tostan data is
-
 ```{r}
 ex10 <- read.csv("Example - Names.csv", check.names = FALSE)
 # The original names
@@ -174,7 +177,6 @@ names(ex11) <- gsub("\\.\\.\\.",'_',names(ex11))
 # Look at the first 15 resulting variable names
 head(names(ex11),15)
 ```
-
 ### Changing Column Types
 Sometimes, R might not guess the type (integer, numeric, string, factor, etc) of each column correctly. You can fix that before you export to SPSS. If you notice in you SPSS file that a column isn't the right type, you can change it using the commands
 ```{r}
@@ -188,11 +190,10 @@ ex12$ethnie.nbre_groupe_ethnique <- as.numeric(ex12$ethnie.nbre_groupe_ethnique)
 # Convert to character
 ex12$interviewer <- as.character(ex12$interviewer)
 ```
-
 ## Writing/Exporting the Data
 Once your data is in a format you're happy with, you can export it to an sav file, which you can open in SPSS. To do so, we need to use a library (also known as a package) called haven. If you've never installed haven before, go ahead and click on Tools>Install Packages, type the word 'haven' into the packages bar, click install, and wait until the installation is complete. If you've already installed haven, or think you might have, go ahead and move on to the next step - if it turns out haven isn't installed, you'll get an error that reads
 
-*Error in library(haven) : there is no package called â€˜havenâ€™*
+*Error in library(haven) : there is no package called 'haven'*
 
 in which case you should go install haven using the instructions above.
 
@@ -217,7 +218,6 @@ ex13 <- read.csv("18 01 08 donnee.csv", na.strings = '---', check.names=FALSE)
 ex13$Number <- as.integer(ex13$Number)
 write_sav(ex13,"new_sav_file.sav")
 ```
-
 like we saw in the data cleaning section. If the column with the error should actually be a string, then change it to characters using the command
 ```{r}
 ex13$Number <- as.character(ex13$Number)
@@ -230,7 +230,6 @@ This means that one of the data entries is too long and takes up too much space 
 ```{r}
 ex13$Number <- enc2utf8(ex13$Number)
 ```
-
 ### Errors in the SAV File After Opening SPSS
 You may also see issues in the SAV file when you open it in SPSS. The most common such issue is that some or all of the variable names will be replaced by v1, v2, v3, etc. If all of the variable names are lost, you most likely forgot to make sure the names of the variables are readible in R. Add the line
 ```{r, eval = FALSE}
@@ -243,5 +242,3 @@ If instead only some of the variables in your SPSS file are missing, you likely 
 names(data)[duplicated(names(data))]
 ```
 to your code, right before the write_sav() commmand, again replacing the word data with the name of your data variable. This line will print any duplicate names in your code, so if anything prints, you have duplicates! Rethink your naming scheme so that there are no longer duplicate variables. 
-
-
