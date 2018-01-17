@@ -21,7 +21,7 @@ The following is an example piece of code. Lines starting with '#' are comments,
 # STEP ONE: read (import) the data into R. Here we use the function read.csv, and the 
 # first entry '18 01 08 donnee.csv' is the name of the csv file we want to use. 
 # More on the import step in a later section.
-d <- read.csv("18 01 08 donnee.csv", na.strings = "---", check.names=FALSE)
+d <- read.csv("18 01 08 donnee.csv", na.strings = c("---",""), check.names=FALSE)
 
 # STEP TWO: clean the data before saving it as an sav file. Here that means shortening 
 # the variable names and making sure the number column of the data is saved as an integer. 
