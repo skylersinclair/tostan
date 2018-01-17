@@ -81,7 +81,7 @@ Now, the NA entries show up as NA, like we want.
 
 ### Keeping or Fixing Variable Names
 
-Sometimes, the variable names (column headers) in the csv file will use characters R can't use as variable names. Example characters that are invalid in R variable names are -,*,$,+ and spaces. This is because these characters represent operations in r. For example, if you had variables a, b and a-b, how would R know if a-b means the variable 'a-b' or the variable 'a' minus the variable 'b'?
+Sometimes, the variable names (column headers) in the csv file will use characters R can't use as variable names. Example characters that are invalid in R variable names are -,*,$,+ and spaces. This is because these characters represent operations in R. For example, if you had variables a, b and a-b, how would R know if a-b means the variable 'a-b' or the variable 'a' minus the variable 'b'?
 
 If you don't tell R to keep the original variable names, it will fix all of the variable names by changing all the characters R can't use to periods. Sometimes, though, you'll want to keep the original variable names (we'll talk about when in the cleaning data section). If you want to keep the original variable names, you can do so using the check.names argument in the read.csv function.
 ```{r}
