@@ -5,6 +5,7 @@ date: "January 16, 2018"
 output:
   pdf_document: default
   html_document: default
+  word_document: default
 ---
 
 If you want to convert a file from CSV (a format you can get from the server) to SAV (a format you can load into SPSS), this document will help you get started.
@@ -230,6 +231,12 @@ This means that one of the data entries is too long and takes up too much space 
 ```{r}
 ex13$Number <- enc2utf8(ex13$Number)
 ```
+If you're having trouble figuring out which lines to try this command on, first try it on all of the columns that you had to convert to string using as.character(), since those are often the open response questions. You can also try narrowing it down by running write_sav on only a subset of the columns by creating a new data.frame that looks at the columns of your choosing. For example
+```{r}
+subset_df <- ex13[,1:3]
+```
+will create a new smaller dataframe that only uses the first three columns of ex13. If you can write_sav on this dataframe with no errors, it means that the problems aren't happening in columns 1-3! By elimination, you can narrow down which columns to look at (try testing half of your data at a time, then half that's left, etc.).
+
 ### Errors in the SAV File After Opening SPSS
 You may also see issues in the SAV file when you open it in SPSS. The most common such issue is that some or all of the variable names will be replaced by v1, v2, v3, etc. If all of the variable names are lost, you most likely forgot to make sure the names of the variables are readible in R. Add the line
 ```{r, eval = FALSE}
