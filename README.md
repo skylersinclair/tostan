@@ -1,4 +1,4 @@
-Dina Sinclair June 8 2018
+June 8 2018
 
 This repository is directed at Tostan metrics employees to help process the high-volume field data collected using R.
 The Cours folder contains files I used to teach the Tostan team how to do R basics, with the Jour_X_etudiant.Rmd files being the unfiled
